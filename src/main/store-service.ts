@@ -25,6 +25,8 @@ export class StoreManager extends EventEmitter {
         defaults: getDefaultValues(name)
       })
 
+      console.log(store.path)
+
       // Watch for changes to this store
       store.onDidAnyChange((newValue) => {
         this.emit('store-changed', name, newValue)

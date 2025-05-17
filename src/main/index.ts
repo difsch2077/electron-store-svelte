@@ -44,8 +44,6 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  console.log('storeManager', storeManager)
-
   // Start time_value1 updater
   setInterval(() => {
     const current = storeManager.get('time').time_value1
