@@ -22,6 +22,6 @@ export type StoreSchemas = {
 }
 
 // 工具函数 ========================
-export function getDefaultValues<T extends StoreName>(storeName: T): StoreSchemas[T] {
+export function getDefaultValues(storeName: StoreName): StoreValue {
   return JSON.parse(JSON.stringify(DEFAULT_VALUES[storeName]))
 }
