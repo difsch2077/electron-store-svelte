@@ -25,7 +25,7 @@ export class StoreManager {
   }
 
   get(name: StoreName): StoreValue {
-    return this.stores[name].get()
+    return this.stores[name].store
   }
 
   set(name: StoreName, key: keyof StoreSchemas[StoreName], value: StoreValue): void {
