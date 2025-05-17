@@ -1,5 +1,5 @@
 // 核心定义 ========================
-const DEFAULT_VALUES = {
+export const DEFAULT_VALUES = {
   config: {
     theme: 'light' as 'light' | 'dark',
     fontSize: 14
