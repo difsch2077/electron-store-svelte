@@ -1,12 +1,6 @@
-/* eslint-disable prettier/prettier */
 import Store from 'electron-store'
 import { EventEmitter } from 'events'
-import {
-  StoreName,
-  ValueSchemas,
-  getDefaultValues,
-  STORE_NAMES
-} from '../common/stores'
+import { StoreName, ValueSchemas, getDefaultValues, STORE_NAMES } from '../common/stores'
 
 type StoreInstances = {
   [K in StoreName]: Store<ValueSchemas[K]>
