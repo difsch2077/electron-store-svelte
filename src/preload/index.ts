@@ -13,7 +13,11 @@ const electronStores = {
     name: StoreName,
     key: K,
     value: StoreSchemas[StoreName][K]
-  ) => ipcRenderer.invoke('store-set', { name, key, value })
+  ) => ipcRenderer.invoke('store-set', { name, key, value }),
+  update: (
+    name: StoreName,
+    partial: Partial<StoreSchemas[typeof name]>
+  ) => ipcRenderer.invoke('store-update', { name, partial })
 }
 
 if (process.contextIsolated) {

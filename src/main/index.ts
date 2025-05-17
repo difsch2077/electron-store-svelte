@@ -63,6 +63,19 @@ app.whenReady().then(() => {
       }
     ) => storeManager.set(name, key, value)
   )
+  ipcMain.handle(
+    'store-update',
+    (
+      _,
+      {
+        name,
+        partial
+      }: {
+        name: StoreName
+        partial: Partial<StoreSchemas[typeof name]>
+      }
+    ) => storeManager.update(name, partial)
+  )
 
   createWindow()
 

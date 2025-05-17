@@ -35,6 +35,10 @@ export class StoreManager {
   ): void {
     this.stores[name].set(key as string, value)
   }
+
+  update(name: StoreName, partial: Partial<StoreSchemas[typeof name]>): void {
+    this.stores[name].set({ ...this.stores[name].store, ...partial })
+  }
 }
 
 export const storeManager = new StoreManager()

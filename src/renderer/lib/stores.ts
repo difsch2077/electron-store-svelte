@@ -8,6 +8,7 @@ function createStore(name: StoreName): {
     key: K,
     value: StoreSchemas[StoreName][K]
   ) => Promise<void>
+  update: (partial: Partial<StoreSchemas[typeof name]>) => Promise<void>
 } {
   const { subscribe, set } = writable<StoreSchemas[typeof name]>(getDefaultValues(name))
 
@@ -18,6 +19,9 @@ function createStore(name: StoreName): {
     subscribe,
     set: <K extends keyof StoreSchemas[StoreName]>(key: K, value: StoreSchemas[StoreName][K]) => {
       return window.electronStores.set(name, key, value)
+    },
+    update: (partial: Partial<StoreSchemas[typeof name]>) => {
+      return window.electronStores.update(name, partial)
     }
   }
 }
