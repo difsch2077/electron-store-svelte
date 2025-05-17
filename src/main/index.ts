@@ -45,14 +45,14 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // // Start time_value1 updater
-  // setInterval(() => {
-  //   const current = storeManager.get('time').time_value1
-  //   storeManager.set('time', {
-  //     ...storeManager.get('time'),
-  //     time_value1: current + 1
-  //   })
-  // }, 1000)
+  // Start time_value1 updater
+  setInterval(() => {
+    const current = storeManager.get('time').time_value1
+    storeManager.set('time', {
+      ...storeManager.get('time'),
+      time_value1: current + 1
+    })
+  }, 1000)
 
   // Register store IPC handlers
   ipcMain.handle('store-get', (_, name: StoreName) => storeManager.get(name))
@@ -69,6 +69,23 @@ app.whenReady().then(() => {
       }
     ) => {
       storeManager.set(name, value)
+      return value
+    }
+  )
+  
+  ipcMain.handle(
+    'store-ipc-set',
+    (
+      _,
+      {
+        name,
+        value
+      }: {
+        name: StoreName
+        value: ValueSchemas[StoreName]
+      }
+    ) => {
+      storeManager.ipcSet(name, value)
       return value
     }
   )

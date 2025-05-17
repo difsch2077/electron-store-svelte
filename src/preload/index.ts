@@ -9,7 +9,7 @@ const electronStores = {
     return ipcRenderer.invoke('store-get', name)
   },
   set: <T extends StoreName>(name: T, value: ValueSchemas[T]) =>
-    ipcRenderer.invoke('store-set', { name, value }),
+    ipcRenderer.invoke('store-ipc-set', { name, value }),
   onStoreChange: <T extends StoreName>(callback: (name: T, value: ValueSchemas[T]) => void) => {
     ipcRenderer.on('store-changed', (_, { name, value }) => callback(name, value))
     return () => ipcRenderer.removeAllListeners('store-changed')

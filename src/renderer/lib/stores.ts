@@ -3,28 +3,35 @@ import { getDefaultValues } from '../../common/stores'
 import type { StoreName, ValueSchemas } from '../../common/stores'
 
 function createStore<T extends StoreName>(name: T): Writable<ValueSchemas[T]> {
-  const { subscribe, set } = writable<ValueSchemas[T]>(getDefaultValues(name))
+  let currentValue = getDefaultValues(name)
+  const { subscribe, set: internalSet } = writable<ValueSchemas[T]>(currentValue)
 
   // 初始化加载
-  window.electronStores.get(name).then(set)
+  window.electronStores.get(name).then((value) => {
+    currentValue = value
+    internalSet(value)
+  })
 
   // 监听主进程的store变更
   const unsubscribeStoreChange = window.electronStores.onStoreChange((changedName, newValue) => {
     if (changedName === name) {
-      set(newValue as ValueSchemas[T])
+      currentValue = newValue as ValueSchemas[T]
+      internalSet(newValue as ValueSchemas[T])
     }
   })
 
   const store = {
     subscribe,
     set: (value: ValueSchemas[T]) => {
-      return window.electronStores.set(name, value)
+      currentValue = value
+      internalSet(value) // 先本地更新
+      return window.electronStores.set(name, value) // 异步更新主进程
     },
     update: (updater: (value: ValueSchemas[T]) => ValueSchemas[T]) => {
-      return window.electronStores.get(name).then((currentValue) => {
-        const newValue = updater(currentValue)
-        return window.electronStores.set(name, newValue)
-      })
+      const newValue = updater(currentValue)
+      currentValue = newValue
+      internalSet(newValue) // 先本地更新
+      return window.electronStores.set(name, newValue) // 异步更新主进程
     }
   }
 

@@ -40,12 +40,21 @@ export class StoreManager extends EventEmitter {
     return this.stores[name].store
   }
 
-  set<T extends StoreName>(name: T, value: ValueSchemas[T]): void {
+  set<T extends StoreName>(name: T, value: ValueSchemas[T], source: 'renderer' | 'main' = 'main'): void {
     this.stores[name].set(value)
+    // 只有主进程发起的更新才通知渲染进程
+    if (source === 'main') {
+      this.emit('store-changed', name, value)
+    }
   }
 
   onStoreChange(callback: StoreChangeCallback): void {
     this.on('store-changed', callback)
+  }
+
+  // 提供给IPC调用的set方法
+  ipcSet<T extends StoreName>(name: T, value: ValueSchemas[T]): void {
+    this.set(name, value, 'renderer')
   }
 }
 
