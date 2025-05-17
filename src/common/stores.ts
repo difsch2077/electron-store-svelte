@@ -3,6 +3,10 @@ const DEFAULT_VALUES = {
   ui: {
     theme: 'light' as 'light' | 'dark',
     fontSize: 14
+  },
+  time: {
+    time_value1: 0 as number,
+    time_value2: 0 as number
   }
 } as const
 

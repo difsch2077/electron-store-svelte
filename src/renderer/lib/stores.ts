@@ -21,7 +21,7 @@ function createStore<T extends StoreName>(name: T): Writable<ValueSchemas[T]> {
       return window.electronStores.set(name, value)
     },
     update: (updater: (value: ValueSchemas[T]) => ValueSchemas[T]) => {
-      return window.electronStores.get(name).then(currentValue => {
+      return window.electronStores.get(name).then((currentValue) => {
         const newValue = updater(currentValue)
         return window.electronStores.set(name, newValue)
       })
@@ -47,3 +47,4 @@ function createStore<T extends StoreName>(name: T): Writable<ValueSchemas[T]> {
 }
 
 export const uiStore = createStore('ui')
+export const timeStore = createStore('time')

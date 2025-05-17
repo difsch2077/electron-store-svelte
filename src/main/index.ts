@@ -46,6 +46,15 @@ app.whenReady().then(() => {
 
   console.log('storeManager', storeManager)
 
+  // Start time_value1 updater
+  setInterval(() => {
+    const current = storeManager.get('time').time_value1
+    storeManager.set('time', {
+      ...storeManager.get('time'),
+      time_value1: current + 1
+    })
+  }, 1000)
+
   // Register store IPC handlers
   ipcMain.handle('store-get', (_, name: StoreName) => storeManager.get(name))
   ipcMain.handle(
@@ -70,6 +79,12 @@ app.whenReady().then(() => {
     BrowserWindow.getAllWindows().forEach(window => {
       window.webContents.send('store-changed', { name, value })
     })
+    
+    // Print time_value2 changes
+    if (name === 'time') {
+      const timeValue = value as ValueSchemas['time']
+      console.log(`time_value2 changed to: ${timeValue.time_value2}`)
+    }
   })
 
   createWindow()
