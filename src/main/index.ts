@@ -5,7 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { storeManager } from './store-service'
 import type { StoreName, ValueSchemas } from '../common/stores'
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -35,6 +35,7 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  return mainWindow
 }
 
 app.whenReady().then(() => {
@@ -44,14 +45,14 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // Start time_value1 updater
-  setInterval(() => {
-    const current = storeManager.get('time').time_value1
-    storeManager.set('time', {
-      ...storeManager.get('time'),
-      time_value1: current + 1
-    })
-  }, 1000)
+  // // Start time_value1 updater
+  // setInterval(() => {
+  //   const current = storeManager.get('time').time_value1
+  //   storeManager.set('time', {
+  //     ...storeManager.get('time'),
+  //     time_value1: current + 1
+  //   })
+  // }, 1000)
 
   // Register store IPC handlers
   ipcMain.handle('store-get', (_, name: StoreName) => storeManager.get(name))
@@ -72,20 +73,17 @@ app.whenReady().then(() => {
     }
   )
 
+  const mainWindow = createWindow()
   // Notify all windows when store changes
   storeManager.onStoreChange((name, value) => {
-    BrowserWindow.getAllWindows().forEach(window => {
-      window.webContents.send('store-changed', { name, value })
-    })
-    
+    mainWindow.webContents.send('store-changed', { name, value })
+
     // Print time_value2 changes
     if (name === 'time') {
       const timeValue = value as ValueSchemas['time']
       console.log(`time_value2 changed to: ${timeValue.time_value2}`)
     }
   })
-
-  createWindow()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
