@@ -5,7 +5,7 @@ import type { DEFAULT_VALUES, StoreName, StoreSchemas, StoreValue } from '../com
 const api = {}
 
 const electronStores = {
-  get(name: StoreName): (typeof DEFAULT_VALUES)[StoreName] {
+  get(name: StoreName): Promise<(typeof DEFAULT_VALUES)[StoreName]> {
     // @ts-ignore ignore
     return ipcRenderer.invoke('store-get', name)
   },
