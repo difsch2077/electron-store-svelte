@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { storeManager } from './store-service'
-import type { StoreName, StoreSchemas } from '../common/stores'
+import type { StoreName, ValueSchemas } from '../common/stores'
 
 function createWindow(): void {
   // Create the browser window.
@@ -57,7 +57,7 @@ app.whenReady().then(() => {
         value
       }: {
         name: StoreName
-        value: StoreSchemas[StoreName]
+        value: ValueSchemas[StoreName]
       }
     ) => {
       storeManager.set(name, value)

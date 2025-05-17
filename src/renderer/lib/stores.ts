@@ -1,9 +1,9 @@
 import { Writable, writable } from 'svelte/store'
 import { getDefaultValues } from '../../common/stores'
-import type { StoreName, StoreSchemas } from '../../common/stores'
+import type { StoreName, ValueSchemas } from '../../common/stores'
 
-function createStore<T extends StoreName>(name: T): Writable<StoreSchemas[T]> {
-  const { subscribe, set } = writable<StoreSchemas[typeof name]>(getDefaultValues(name))
+function createStore<T extends StoreName>(name: T): Writable<ValueSchemas[T]> {
+  const { subscribe, set } = writable<ValueSchemas[T]>(getDefaultValues(name))
 
   // 初始化加载
   window.electronStores.get(name).then(set)
@@ -11,16 +11,16 @@ function createStore<T extends StoreName>(name: T): Writable<StoreSchemas[T]> {
   // 监听主进程的store变更
   const unsubscribeStoreChange = window.electronStores.onStoreChange((changedName, newValue) => {
     if (changedName === name) {
-      set(newValue as StoreSchemas[T])
+      set(newValue as ValueSchemas[T])
     }
   })
 
   const store = {
     subscribe,
-    set: (value: StoreSchemas[StoreName]) => {
+    set: (value: ValueSchemas[T]) => {
       return window.electronStores.set(name, value)
     },
-    update: (updater: (value: StoreSchemas[typeof name]) => StoreSchemas[typeof name]) => {
+    update: (updater: (value: ValueSchemas[T]) => ValueSchemas[T]) => {
       return window.electronStores.get(name).then(currentValue => {
         const newValue = updater(currentValue)
         return window.electronStores.set(name, newValue)
@@ -43,7 +43,7 @@ function createStore<T extends StoreName>(name: T): Writable<StoreSchemas[T]> {
     }
   }
 
-  return store as Writable<StoreSchemas[typeof name]>
+  return store as Writable<ValueSchemas[typeof name]>
 }
 
 // 导出具体 Store
