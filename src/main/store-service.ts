@@ -28,12 +28,11 @@ export class StoreManager {
     return this.stores[name].store
   }
 
-  set<K extends keyof StoreSchemas[StoreName]>(
+  set(
     name: StoreName,
-    key: K,
-    value: StoreSchemas[StoreName][K]
+    value: StoreSchemas[StoreName]
   ): void {
-    this.stores[name].set(key as string, value)
+    this.stores[name].set(value)
   }
 
   update(name: StoreName, partial: Partial<StoreSchemas[typeof name]>): void {

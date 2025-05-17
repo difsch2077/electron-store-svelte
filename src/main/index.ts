@@ -50,18 +50,16 @@ app.whenReady().then(() => {
   ipcMain.handle('store-get', (_, name: StoreName) => storeManager.get(name))
   ipcMain.handle(
     'store-set',
-    <K extends keyof StoreSchemas[StoreName]>(
+    (
       _,
       {
         name,
-        key,
         value
       }: {
         name: StoreName
-        key: K
-        value: StoreSchemas[StoreName][K]
+        value: StoreSchemas[StoreName]
       }
-    ) => storeManager.set(name, key, value)
+    ) => storeManager.set(name, value)
   )
   ipcMain.handle(
     'store-update',
