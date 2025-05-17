@@ -2,7 +2,8 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import {storeManager} from './store-service'
+import { storeManager } from './store-service'
+import type { StoreName, StoreValue, StoreSchemas } from '../common/stores'
 
 function createWindow(): void {
   // Create the browser window.
@@ -44,6 +45,14 @@ app.whenReady().then(() => {
   })
 
   console.log('storeManager', storeManager)
+
+  // Register store IPC handlers
+  ipcMain.handle('store-get', (_, name: StoreName) => storeManager.get(name))
+  ipcMain.handle('store-set', (_, { name, key, value }: {
+    name: StoreName,
+    key: keyof StoreSchemas[StoreName],
+    value: StoreValue[keyof StoreSchemas[StoreName]]
+  }) => storeManager.set(name, key, value))
 
   createWindow()
 
