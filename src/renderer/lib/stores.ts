@@ -2,7 +2,7 @@ import { Writable, writable } from 'svelte/store'
 import { getDefaultValues } from '../../common/stores'
 import type { StoreName, StoreSchemas } from '../../common/stores'
 
-function createStore(name: StoreName): Writable<StoreSchemas[typeof name]> {
+function createStore<T extends StoreName>(name: T): Writable<StoreSchemas[T]> {
   const { subscribe, set } = writable<StoreSchemas[typeof name]>(getDefaultValues(name))
 
   // 初始化加载
@@ -11,7 +11,7 @@ function createStore(name: StoreName): Writable<StoreSchemas[typeof name]> {
   // 监听主进程的store变更
   const unsubscribeStoreChange = window.electronStores.onStoreChange((changedName, newValue) => {
     if (changedName === name) {
-      set(newValue)
+      set(newValue as StoreSchemas[T])
     }
   })
 

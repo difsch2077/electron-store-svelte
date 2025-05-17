@@ -1,5 +1,5 @@
 // 核心定义 ========================
-export const DEFAULT_VALUES = {
+const DEFAULT_VALUES = {
   config: {
     theme: 'light' as 'light' | 'dark',
     fontSize: 14
@@ -13,7 +13,6 @@ export const DEFAULT_VALUES = {
 
 // 自动推导类型 ====================
 export type StoreName = keyof typeof DEFAULT_VALUES
-export type StoreValue = StoreSchemas[StoreName]
 
 export const STORE_NAMES = Object.keys(DEFAULT_VALUES) as StoreName[]
 
@@ -22,6 +21,6 @@ export type StoreSchemas = {
 }
 
 // 工具函数 ========================
-export function getDefaultValues(storeName: StoreName): StoreValue {
+export function getDefaultValues<T extends StoreName>(storeName: T): StoreSchemas[T] {
   return JSON.parse(JSON.stringify(DEFAULT_VALUES[storeName]))
 }
