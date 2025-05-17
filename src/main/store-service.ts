@@ -1,4 +1,5 @@
 import Store from 'electron-store'
+import { EventEmitter } from 'events'
 import {
   StoreName,
   StoreValue,
@@ -11,15 +12,25 @@ type StoreInstances = {
   [K in StoreName]: Store<StoreValue>
 }
 
-export class StoreManager {
+type StoreChangeCallback = (name: StoreName, value: StoreSchemas[StoreName]) => void
+
+export class StoreManager extends EventEmitter {
   private stores: StoreInstances
 
   constructor() {
+    super()
     this.stores = STORE_NAMES.reduce((acc, name: StoreName) => {
-      acc[name] = new Store<StoreSchemas[typeof name]>({
+      const store = new Store<StoreSchemas[typeof name]>({
         name,
         defaults: getDefaultValues(name)
       })
+      
+      // Watch for changes to this store
+      store.onDidAnyChange((newValue) => {
+        this.emit('store-changed', name, newValue)
+      })
+      
+      acc[name] = store
       return acc
     }, {} as StoreInstances)
   }
@@ -28,15 +39,12 @@ export class StoreManager {
     return this.stores[name].store
   }
 
-  set(
-    name: StoreName,
-    value: StoreSchemas[StoreName]
-  ): void {
+  set(name: StoreName, value: StoreSchemas[StoreName]): void {
     this.stores[name].set(value)
   }
 
-  update(name: StoreName, partial: Partial<StoreSchemas[typeof name]>): void {
-    this.stores[name].set({ ...this.stores[name].store, ...partial })
+  onStoreChange(callback: StoreChangeCallback): void {
+    this.on('store-changed', callback)
   }
 }
 

@@ -59,21 +59,18 @@ app.whenReady().then(() => {
         name: StoreName
         value: StoreSchemas[StoreName]
       }
-    ) => storeManager.set(name, value)
+    ) => {
+      storeManager.set(name, value)
+      return value
+    }
   )
-  ipcMain.handle(
-    'store-update',
-    (
-      _,
-      {
-        name,
-        partial
-      }: {
-        name: StoreName
-        partial: Partial<StoreSchemas[typeof name]>
-      }
-    ) => storeManager.update(name, partial)
-  )
+
+  // Notify all windows when store changes
+  storeManager.onStoreChange((name, value) => {
+    BrowserWindow.getAllWindows().forEach(window => {
+      window.webContents.send('store-changed', { name, value })
+    })
+  })
 
   createWindow()
 

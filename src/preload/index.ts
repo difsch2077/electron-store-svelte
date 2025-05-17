@@ -10,8 +10,10 @@ const electronStores = {
   },
   set: (name: StoreName, value: StoreSchemas[StoreName]) =>
     ipcRenderer.invoke('store-set', { name, value }),
-  update: (name: StoreName, partial: Partial<StoreSchemas[typeof name]>) =>
-    ipcRenderer.invoke('store-update', { name, partial })
+  onStoreChange: (callback: (name: StoreName, value: StoreSchemas[StoreName]) => void) => {
+    ipcRenderer.on('store-changed', (_, { name, value }) => callback(name, value))
+    return () => ipcRenderer.removeAllListeners('store-changed')
+  }
 }
 
 if (process.contextIsolated) {
