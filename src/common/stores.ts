@@ -1,14 +1,9 @@
 // 核心定义 ========================
 const DEFAULT_VALUES = {
-  config: {
+  ui: {
     theme: 'light' as 'light' | 'dark',
     fontSize: 14
-  },
-  user: {
-    id: '',
-    name: 'Guest'
-  },
-  logs: [] as string[]
+  }
 } as const
 
 export type StoreName = keyof typeof DEFAULT_VALUES

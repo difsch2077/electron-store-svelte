@@ -46,6 +46,4 @@ function createStore<T extends StoreName>(name: T): Writable<ValueSchemas[T]> {
   return store as Writable<ValueSchemas[typeof name]>
 }
 
-// 导出具体 Store
-export const configStore = createStore('config')
-export const userStore = createStore('user')
+export const uiStore = createStore('ui')
