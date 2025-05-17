@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { storeManager } from './store-service'
-import type { StoreName, StoreValue, StoreSchemas } from '../common/stores'
+import type { StoreName, StoreSchemas } from '../common/stores'
 
 function createWindow(): void {
   // Create the browser window.
@@ -48,11 +48,21 @@ app.whenReady().then(() => {
 
   // Register store IPC handlers
   ipcMain.handle('store-get', (_, name: StoreName) => storeManager.get(name))
-  ipcMain.handle('store-set', (_, { name, key, value }: {
-    name: StoreName,
-    key: keyof StoreSchemas[StoreName],
-    value: StoreValue[keyof StoreSchemas[StoreName]]
-  }) => storeManager.set(name, key, value))
+  ipcMain.handle(
+    'store-set',
+    <K extends keyof StoreSchemas[StoreName]>(
+      _,
+      {
+        name,
+        key,
+        value
+      }: {
+        name: StoreName
+        key: K
+        value: StoreSchemas[StoreName][K]
+      }
+    ) => storeManager.set(name, key, value)
+  )
 
   createWindow()
 

@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { DEFAULT_VALUES, StoreName, StoreSchemas, StoreValue } from '../common/stores'
+import type { DEFAULT_VALUES, StoreName, StoreSchemas } from '../common/stores'
 
 // Custom APIs for renderer
 const api = {}
@@ -9,10 +9,10 @@ const electronStores = {
     // @ts-ignore ignore
     return ipcRenderer.invoke('store-get', name)
   },
-  set: (
+  set: <K extends keyof StoreSchemas[StoreName]>(
     name: StoreName,
-    key: keyof StoreSchemas[StoreName],
-    value: StoreValue[keyof StoreSchemas[StoreName]]
+    key: K,
+    value: StoreSchemas[StoreName][K]
   ) => ipcRenderer.invoke('store-set', { name, key, value })
 }
 
