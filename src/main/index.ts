@@ -56,23 +56,7 @@ app.whenReady().then(() => {
 
   // Register store IPC handlers
   ipcMain.handle('store-get', (_, name: StoreName) => storeManager.get(name))
-  ipcMain.handle(
-    'store-set',
-    (
-      _,
-      {
-        name,
-        value
-      }: {
-        name: StoreName
-        value: ValueSchemas[StoreName]
-      }
-    ) => {
-      storeManager.set(name, value)
-      return value
-    }
-  )
-  
+
   ipcMain.handle(
     'store-ipc-set',
     (
