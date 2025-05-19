@@ -1,10 +1,17 @@
 import { storageDefaultValues } from '../../common/storage'
 import type { StorageName, StorageSchemas } from '../../common/storage'
 
-function createStore<T extends StorageName>(name: T) {
-  // 使用$state管理核心状态
-
+function createRune<T extends StorageName>(name: T) {
   let currentValue = $state(storageDefaultValues(name))
+
+  const unsubscribeStoreChange = window.electronStores.onStoreChange(
+    (changedName, newValue, source) => {
+      if (changedName === name && source !== 'rune') {
+        currentValue = newValue as StorageSchemas[T]
+        isAfterMainChange = true
+      }
+    }
+  )
 
   let isAfterMainChange = false
   window.electronStores.get(name).then((value) => {
@@ -22,19 +29,8 @@ function createStore<T extends StorageName>(name: T) {
         isAfterMainChange = false
         isFirstTime = false
       })
-
-      return () => {}
     })
   })
-
-  const unsubscribeStoreChange = window.electronStores.onStoreChange(
-    (changedName, newValue, source) => {
-      if (changedName === name && source !== 'rune') {
-        currentValue = newValue as StorageSchemas[T]
-        isAfterMainChange = true
-      }
-    }
-  )
 
   return {
     /**
@@ -58,5 +54,5 @@ function createStore<T extends StorageName>(name: T) {
   }
 }
 
-export const uiStore = createStore('ui')
-export const timeStore = createStore('time')
+export const uiStore = createRune('ui')
+export const timeStore = createRune('time')
