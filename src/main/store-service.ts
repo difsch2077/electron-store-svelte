@@ -2,67 +2,69 @@ import Store from 'electron-store'
 import { EventEmitter } from 'events'
 import { StorageName, StorageSchemas, storageDefaultValues, STORAGE_NAMES } from '../common/storage'
 
-type StoreInstances = {
+type StorageInstances = {
   [K in StorageName]: Store<StorageSchemas[K]>
 }
 
-type StoreChangeCallback = (name: StorageName, value: StorageSchemas[StorageName]) => void
-
-export class StoreManager extends EventEmitter {
-  private stores: StoreInstances
+export class StorageManager extends EventEmitter {
+  private storages: StorageInstances
 
   constructor() {
     super()
-    this.stores = STORAGE_NAMES.reduce(<T extends StorageName>(acc, name: T) => {
+    this.storages = STORAGE_NAMES.reduce(<T extends StorageName>(acc, name: T) => {
       const store = new Store<StorageSchemas[typeof name]>({
         name,
         defaults: storageDefaultValues(name)
       })
 
-      console.log(store.path)
+      console.log('Store ' + name + ': ', store.path)
 
-      // Watch for changes to this store
-      store.onDidAnyChange((newValue) => {
-        this.emit('store-changed', name, newValue)
-      })
       acc[name] = store
       return acc
-    }, {} as StoreInstances)
+    }, {} as StorageInstances)
   }
 
   get<T extends StorageName>(name: T): StorageSchemas[T] {
-    return this.stores[name].store
+    return this.storages[name].store
   }
 
   set<T extends StorageName>(
     name: T,
     value: StorageSchemas[T],
-    source: 'renderer' | 'main' = 'main'
+    source: 'store' | 'rune' | 'main' = 'main'
   ): void {
-    this.stores[name].set(value)
+    this.storages[name].set(value)
     // 只有主进程发起的更新才通知渲染进程
-    if (source === 'main') {
-      this.emit('store-changed', name, value)
-    }
+    this.emit('store-changed', name, value, source)
   }
 
   setPartial<T extends StorageName>(
     name: T,
     value: Partial<StorageSchemas[T]>,
-    source: 'renderer' | 'main' = 'main'
+    source: 'store' | 'rune' | 'main' = 'main'
   ): void {
     const newValue = { ...this.get(name), ...value }
     this.set(name, newValue, source)
   }
 
-  onStoreChange(callback: StoreChangeCallback): void {
+  onStoreChange(
+    callback: (
+      name: StorageName,
+      value: StorageSchemas[StorageName],
+      source: 'store' | 'rune' | 'main'
+    ) => void
+  ): void {
     this.on('store-changed', callback)
   }
 
   // 提供给IPC调用的set方法
-  ipcSet<T extends StorageName>(name: T, value: StorageSchemas[T]): void {
-    this.set(name, value, 'renderer')
+  ipcSet<T extends StorageName>(
+    name: T,
+    value: StorageSchemas[T],
+    source: 'store' | 'rune' | 'main'
+  ): void {
+    this.set(name, value, source)
   }
 }
 
-export const storeManager = new StoreManager()
+export const storeManager = new StorageManager()

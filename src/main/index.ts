@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { storeManager } from './store-service'
+import { storeManager as storageManager } from './store-service'
 import type { StorageName, StorageSchemas } from '../common/storage'
 
 function createWindow(): BrowserWindow {
@@ -46,16 +46,16 @@ app.whenReady().then(() => {
   })
 
   // Start time_value1 updater
-  setInterval(() => {
-    const current = storeManager.get('time').time_value1
-    storeManager.set('time', {
-      ...storeManager.get('time'),
-      time_value1: current + 1
-    })
-  }, 1000)
+  // setInterval(() => {
+  //   const current = storageManager.get('time').time_value1
+  //   storageManager.set('time', {
+  //     ...storageManager.get('time'),
+  //     time_value1: current + 1
+  //   })
+  // }, 1000)
 
   // Register store IPC handlers
-  ipcMain.handle('store-get', (_, name: StorageName) => storeManager.get(name))
+  ipcMain.handle('store-get', (_, name: StorageName) => storageManager.get(name))
 
   ipcMain.handle(
     'store-ipc-set',
@@ -63,21 +63,24 @@ app.whenReady().then(() => {
       _,
       {
         name,
-        value
+        value,
+        source
       }: {
         name: StorageName
         value: StorageSchemas[StorageName]
+        source: 'store' | 'rune'
       }
     ) => {
-      storeManager.ipcSet(name, value)
+      storageManager.ipcSet(name, value, source)
       return value
     }
   )
 
   const mainWindow = createWindow()
   // Notify all windows when store changes
-  storeManager.onStoreChange((name, value) => {
-    mainWindow.webContents.send('store-changed', { name, value })
+  storageManager.onStoreChange((name, value, source) => {
+    console.log('source', source)
+    mainWindow.webContents.send('store-changed', { name, value, source })
   })
 
   app.on('activate', function () {

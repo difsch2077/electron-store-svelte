@@ -8,11 +8,17 @@ const electronStores = {
   get<T extends StorageName>(name: T): Promise<StorageSchemas[T]> {
     return ipcRenderer.invoke('store-get', name)
   },
-  set: <T extends StorageName>(name: T, value: StorageSchemas[T]): void => {
-    ipcRenderer.invoke('store-ipc-set', { name, value })
+  set: <T extends StorageName>(
+    name: T,
+    value: StorageSchemas[T],
+    source: 'store' | 'rune'
+  ): void => {
+    ipcRenderer.invoke('store-ipc-set', { name, value, source })
   },
-  onStoreChange: <T extends StorageName>(callback: (name: T, value: StorageSchemas[T]) => void) => {
-    ipcRenderer.on('store-changed', (_, { name, value }) => callback(name, value))
+  onStoreChange: <T extends StorageName>(
+    callback: (name: T, value: StorageSchemas[T], source: 'store' | 'rune' | 'main') => void
+  ) => {
+    ipcRenderer.on('store-changed', (_, { name, value, source }) => callback(name, value, source))
     return () => ipcRenderer.removeAllListeners('store-changed')
   }
 }

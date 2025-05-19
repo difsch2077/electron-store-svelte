@@ -13,25 +13,27 @@ function createStore<T extends StorageName>(name: T): Writable<StorageSchemas[T]
   })
 
   // 监听主进程的store变更
-  const unsubscribeStoreChange = window.electronStores.onStoreChange((changedName, newValue) => {
-    if (changedName === name) {
-      currentValue = newValue as StorageSchemas[T]
-      internalSet(newValue as StorageSchemas[T])
+  const unsubscribeStoreChange = window.electronStores.onStoreChange(
+    (changedName, newValue, source) => {
+      if (changedName === name && source !== 'store') {
+        currentValue = newValue as StorageSchemas[T]
+        internalSet(newValue as StorageSchemas[T])
+      }
     }
-  })
+  )
 
   const store = {
     subscribe,
     set: (value: StorageSchemas[T]) => {
       currentValue = value
       internalSet(value) // 先本地更新
-      window.electronStores.set(name, value) // 异步更新主进程
+      window.electronStores.set(name, value, 'store') // 异步更新主进程
     },
     update: (updater: (value: StorageSchemas[T]) => StorageSchemas[T]) => {
       const newValue = updater(currentValue)
       currentValue = newValue
       internalSet(newValue) // 先本地更新
-      window.electronStores.set(name, newValue) // 异步更新主进程
+      window.electronStores.set(name, newValue, 'store') // 异步更新主进程
     }
   }
 

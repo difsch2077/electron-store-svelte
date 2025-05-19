@@ -6,15 +6,17 @@ function createStore<T extends StorageName>(name: T) {
 
   let currentValue = $state(storageDefaultValues(name))
 
-  let isInit = false
+  let isInited = false
   let isAfterMainChange = false
+  let isFirstTime = true
   window.electronStores.get(name).then((value) => {
     currentValue = value
-    isInit = true
+    isInited = true
+    isFirstTime = true // necessary
   })
 
-  window.electronStores.onStoreChange((changedName, newValue) => {
-    if (changedName === name) {
+  window.electronStores.onStoreChange((changedName, newValue, source) => {
+    if (changedName === name && source !== 'rune') {
       currentValue = newValue as StorageSchemas[T]
       isAfterMainChange = true
     }
@@ -22,11 +24,14 @@ function createStore<T extends StorageName>(name: T) {
 
   $effect.root(() => {
     $effect(() => {
-      const value = $state.snapshot(currentValue) // $state.snapshot or JSON.stringify is necessary to trigger $effect
-      if (isInit && !isAfterMainChange) {
-        window.electronStores.set(name, value as StorageSchemas[T])
+      // $state.snapshot or JSON.stringify should at the top of $effect!
+      // $state.snapshot or JSON.stringify is necessary to trigger $effect
+      const value = $state.snapshot(currentValue)
+      if (isInited && !isFirstTime && !isAfterMainChange) {
+        window.electronStores.set(name, value as StorageSchemas[T], 'rune')
       }
       isAfterMainChange = false
+      isFirstTime = false
     })
 
     return () => {}
