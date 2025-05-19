@@ -16,6 +16,7 @@ export function createRune<T extends StorageName>(name: T) {
 
   let isAfterMainChange = false
   let cleanRoot = () => {}
+  let isDestory = false
   window.electronStores.get(name).then((value) => {
     currentValue = value
     let isFirstTime = true // necessary
@@ -25,7 +26,7 @@ export function createRune<T extends StorageName>(name: T) {
         // $state.snapshot or JSON.stringify should at the top of $effect!
         // $state.snapshot or JSON.stringify is necessary to trigger $effect
         const value = $state.snapshot(currentValue)
-        if (!isFirstTime && !isAfterMainChange) {
+        if (!isFirstTime && !isAfterMainChange && !isDestory) {
           window.electronStores.set(name, value as StorageSchemas[T], 'rune')
         }
         isAfterMainChange = false
@@ -35,6 +36,7 @@ export function createRune<T extends StorageName>(name: T) {
   })
 
   function cleanup() {
+    isDestory = true
     unsubscribeStoreChange()
     cleanRoot()
   }
