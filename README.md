@@ -1,6 +1,6 @@
 # Electron Svelte Store Example
 
-Use electron-store with 2 way:
+Use electron-store in 2 way:
 
 1. Traditional Svelte Stores
 2. Svelte5 Rune
