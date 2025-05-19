@@ -35,8 +35,8 @@ export function createRune<T extends StorageName>(name: T) {
   })
 
   function cleanup() {
-    cleanRoot()
     unsubscribeStoreChange()
+    cleanRoot()
   }
 
   try {
@@ -46,18 +46,6 @@ export function createRune<T extends StorageName>(name: T) {
   } catch {}
 
   return {
-    /**
-     * @deprecated Use current to align with Svelte conventions
-     */
-    get value() {
-      return currentValue
-    },
-    /**
-     * @deprecated Use current to align with Svelte conventions
-     */
-    set value(newValue) {
-      currentValue = newValue
-    },
     get current() {
       return currentValue
     },
