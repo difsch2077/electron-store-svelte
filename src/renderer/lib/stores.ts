@@ -6,13 +6,11 @@ function createStore<T extends StorageName>(name: T): Writable<StorageSchemas[T]
   let currentValue = storageDefaultValues(name)
   const { subscribe, set: internalSet } = writable<StorageSchemas[T]>(currentValue)
 
-  // 初始化加载
   window.electronStores.get(name).then((value) => {
     currentValue = value
     internalSet(value)
   })
 
-  // 监听主进程的store变更
   const unsubscribeStoreChange = window.electronStores.onStoreChange(
     (changedName, newValue, source) => {
       if (changedName === name && source !== 'store') {
@@ -26,14 +24,14 @@ function createStore<T extends StorageName>(name: T): Writable<StorageSchemas[T]
     subscribe,
     set: (value: StorageSchemas[T]) => {
       currentValue = value
-      internalSet(value) // 先本地更新
-      window.electronStores.set(name, value, 'store') // 异步更新主进程
+      internalSet(value)
+      window.electronStores.set(name, value, 'store')
     },
     update: (updater: (value: StorageSchemas[T]) => StorageSchemas[T]) => {
       const newValue = updater(currentValue)
       currentValue = newValue
-      internalSet(newValue) // 先本地更新
-      window.electronStores.set(name, newValue, 'store') // 异步更新主进程
+      internalSet(newValue)
+      window.electronStores.set(name, newValue, 'store')
     }
   }
 
