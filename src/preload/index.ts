@@ -1,16 +1,17 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { StoreName, ValueSchemas } from '../common/stores'
+import type { StorageName, StorageSchemas } from '../common/storage'
 
 // Custom APIs for renderer
 const api = {}
 
 const electronStores = {
-  get<T extends StoreName>(name: T): Promise<ValueSchemas[T]> {
+  get<T extends StorageName>(name: T): Promise<StorageSchemas[T]> {
     return ipcRenderer.invoke('store-get', name)
   },
-  set: <T extends StoreName>(name: T, value: ValueSchemas[T]) =>
-    ipcRenderer.invoke('store-ipc-set', { name, value }),
-  onStoreChange: <T extends StoreName>(callback: (name: T, value: ValueSchemas[T]) => void) => {
+  set: <T extends StorageName>(name: T, value: StorageSchemas[T]): void => {
+    ipcRenderer.invoke('store-ipc-set', { name, value })
+  },
+  onStoreChange: <T extends StorageName>(callback: (name: T, value: StorageSchemas[T]) => void) => {
     ipcRenderer.on('store-changed', (_, { name, value }) => callback(name, value))
     return () => ipcRenderer.removeAllListeners('store-changed')
   }

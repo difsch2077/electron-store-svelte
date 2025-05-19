@@ -1,22 +1,22 @@
 import Store from 'electron-store'
 import { EventEmitter } from 'events'
-import { StoreName, ValueSchemas, getDefaultValues, STORE_NAMES } from '../common/stores'
+import { StorageName, StorageSchemas, storageDefaultValues, STORAGE_NAMES } from '../common/storage'
 
 type StoreInstances = {
-  [K in StoreName]: Store<ValueSchemas[K]>
+  [K in StorageName]: Store<StorageSchemas[K]>
 }
 
-type StoreChangeCallback = (name: StoreName, value: ValueSchemas[StoreName]) => void
+type StoreChangeCallback = (name: StorageName, value: StorageSchemas[StorageName]) => void
 
 export class StoreManager extends EventEmitter {
   private stores: StoreInstances
 
   constructor() {
     super()
-    this.stores = STORE_NAMES.reduce(<T extends StoreName>(acc, name: T) => {
-      const store = new Store<ValueSchemas[typeof name]>({
+    this.stores = STORAGE_NAMES.reduce(<T extends StorageName>(acc, name: T) => {
+      const store = new Store<StorageSchemas[typeof name]>({
         name,
-        defaults: getDefaultValues(name)
+        defaults: storageDefaultValues(name)
       })
 
       console.log(store.path)
@@ -30,13 +30,13 @@ export class StoreManager extends EventEmitter {
     }, {} as StoreInstances)
   }
 
-  get<T extends StoreName>(name: T): ValueSchemas[T] {
+  get<T extends StorageName>(name: T): StorageSchemas[T] {
     return this.stores[name].store
   }
 
-  set<T extends StoreName>(
+  set<T extends StorageName>(
     name: T,
-    value: ValueSchemas[T],
+    value: StorageSchemas[T],
     source: 'renderer' | 'main' = 'main'
   ): void {
     this.stores[name].set(value)
@@ -46,7 +46,7 @@ export class StoreManager extends EventEmitter {
     }
   }
 
-  setPartial<T extends STORAGE_NAME>(
+  setPartial<T extends StorageName>(
     name: T,
     value: Partial<StorageSchemas[T]>,
     source: 'renderer' | 'main' = 'main'
@@ -60,7 +60,7 @@ export class StoreManager extends EventEmitter {
   }
 
   // 提供给IPC调用的set方法
-  ipcSet<T extends StoreName>(name: T, value: ValueSchemas[T]): void {
+  ipcSet<T extends StorageName>(name: T, value: StorageSchemas[T]): void {
     this.set(name, value, 'renderer')
   }
 }

@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { storeManager } from './store-service'
-import type { StoreName, ValueSchemas } from '../common/stores'
+import type { StorageName, StorageSchemas } from '../common/storage'
 
 function createWindow(): BrowserWindow {
   // Create the browser window.
@@ -55,7 +55,7 @@ app.whenReady().then(() => {
   }, 1000)
 
   // Register store IPC handlers
-  ipcMain.handle('store-get', (_, name: StoreName) => storeManager.get(name))
+  ipcMain.handle('store-get', (_, name: StorageName) => storeManager.get(name))
 
   ipcMain.handle(
     'store-ipc-set',
@@ -65,8 +65,8 @@ app.whenReady().then(() => {
         name,
         value
       }: {
-        name: StoreName
-        value: ValueSchemas[StoreName]
+        name: StorageName
+        value: StorageSchemas[StorageName]
       }
     ) => {
       storeManager.ipcSet(name, value)
@@ -81,7 +81,7 @@ app.whenReady().then(() => {
 
     // Print time_value2 changes
     if (name === 'time') {
-      const timeValue = value as ValueSchemas['time']
+      const timeValue = value as StorageSchemas['time']
       console.log(`time_value2 changed to: ${timeValue.time_value2}`)
     }
   })
