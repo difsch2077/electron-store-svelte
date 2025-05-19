@@ -36,17 +36,12 @@ function createStore<T extends StorageName>(name: T): Writable<StorageSchemas[T]
   }
 
   // Add cleanup on last unsubscriber
-  let unsubscribers = 0
   const originalSubscribe = store.subscribe
   store.subscribe = (run, invalidate) => {
-    unsubscribers++
     const unsubscribe = originalSubscribe(run, invalidate)
     return () => {
-      unsubscribers--
       unsubscribe()
-      if (unsubscribers === 0) {
-        unsubscribeStoreChange()
-      }
+      unsubscribeStoreChange()
     }
   }
 

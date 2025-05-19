@@ -4,6 +4,49 @@ import type { StorageName, StorageSchemas } from '../common/storage'
 // Custom APIs for renderer
 const api = {}
 
+type StoreChangeCallback = (name: string, value: unknown, source: 'store' | 'rune' | 'main') => void
+
+class StoreChangeManager {
+  private callbacks = new Map<string, Set<StoreChangeCallback>>()
+
+  add(uid: string, callback: StoreChangeCallback): StoreChangeCallback {
+    if (!this.callbacks.has(uid)) {
+      this.callbacks.set(uid, new Set())
+    }
+    this.callbacks.get(uid)!.add(callback)
+    return callback
+  }
+
+  remove(uid: string, callback: StoreChangeCallback): void {
+    const callbacks = this.callbacks.get(uid)
+    if (callbacks) {
+      callbacks.delete(callback)
+      if (callbacks.size === 0) {
+        this.callbacks.delete(uid)
+      }
+    }
+  }
+
+  notify<T extends StorageName>(
+    name: T,
+    value: StorageSchemas[T],
+    source: 'store' | 'rune' | 'main'
+  ): void {
+    const callbackValues = this.callbacks.values()
+    for (const callbacks of callbackValues) {
+      if (callbacks) {
+        callbacks.forEach((cb) => cb(name, value, source))
+      }
+    }
+  }
+}
+
+const storeChangeManager = new StoreChangeManager()
+
+ipcRenderer.on('store-changed', (_, { name, value, source }) => {
+  storeChangeManager.notify(name as StorageName, value, source)
+})
+
 const electronStores = {
   get<T extends StorageName>(name: T): Promise<StorageSchemas[T]> {
     return ipcRenderer.invoke('store-get', name)
@@ -18,8 +61,10 @@ const electronStores = {
   onStoreChange: <T extends StorageName>(
     callback: (name: T, value: StorageSchemas[T], source: 'store' | 'rune' | 'main') => void
   ) => {
-    ipcRenderer.on('store-changed', (_, { name, value, source }) => callback(name, value, source))
-    return () => ipcRenderer.removeAllListeners('store-changed')
+    const uid = Math.random().toString(36).substr(2, 8)
+    // @ts-ignore ignore
+    const wrappedCallback = storeChangeManager.add(uid, callback)
+    return () => storeChangeManager.remove(uid, wrappedCallback)
   }
 }
 
