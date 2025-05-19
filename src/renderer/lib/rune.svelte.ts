@@ -1,7 +1,8 @@
+import { onDestroy } from 'svelte'
 import { storageDefaultValues } from '../../common/storage'
 import type { StorageName, StorageSchemas } from '../../common/storage'
 
-function createRune<T extends StorageName>(name: T) {
+export function createRune<T extends StorageName>(name: T) {
   let currentValue = $state(storageDefaultValues(name))
 
   const unsubscribeStoreChange = window.electronStores.onStoreChange(
@@ -14,11 +15,12 @@ function createRune<T extends StorageName>(name: T) {
   )
 
   let isAfterMainChange = false
+  let cleanRoot = () => {}
   window.electronStores.get(name).then((value) => {
     currentValue = value
     let isFirstTime = true // necessary
 
-    $effect.root(() => {
+    cleanRoot = $effect.root(() => {
       $effect(() => {
         // $state.snapshot or JSON.stringify should at the top of $effect!
         // $state.snapshot or JSON.stringify is necessary to trigger $effect
@@ -31,6 +33,17 @@ function createRune<T extends StorageName>(name: T) {
       })
     })
   })
+
+  function cleanup() {
+    cleanRoot()
+    unsubscribeStoreChange()
+  }
+
+  try {
+    onDestroy(() => {
+      cleanup()
+    })
+  } catch {}
 
   return {
     /**
@@ -50,7 +63,8 @@ function createRune<T extends StorageName>(name: T) {
     },
     set current(newValue) {
       currentValue = newValue
-    }
+    },
+    cleanup
   }
 }
 

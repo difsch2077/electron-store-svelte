@@ -6,6 +6,9 @@ const STORAGE_DEFAULT_VALUES = {
   time: {
     time_value1: 0 as number,
     time_value2: 0 as number
+  },
+  forDebug: {
+    value: 1 as number
   }
 }
 
