@@ -1,5 +1,4 @@
-// 核心定义 ========================
-export const STORAGE_DEFAULT_VALUES = {
+const STORAGE_DEFAULT_VALUES = {
   ui: {
     theme: 'light' as 'light' | 'dark',
     fontSize: 14

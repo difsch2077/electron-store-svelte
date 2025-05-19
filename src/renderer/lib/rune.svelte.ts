@@ -1,10 +1,10 @@
-import { STORAGE_DEFAULT_VALUES } from '../../common/storage'
+import { storageDefaultValues } from '../../common/storage'
 import type { StorageName, StorageSchemas } from '../../common/storage'
 
-function createStore<T extends StorageName>(name: T, initValue: StorageSchemas[T]) {
+function createStore<T extends StorageName>(name: T) {
   // 使用$state管理核心状态
 
-  let currentValue = $state(initValue)
+  let currentValue = $state(storageDefaultValues(name))
 
   let isInit = false
   let isAfterMainChange = false
@@ -54,5 +54,5 @@ function createStore<T extends StorageName>(name: T, initValue: StorageSchemas[T
   }
 }
 
-export const uiStore = createStore('ui', STORAGE_DEFAULT_VALUES.ui)
-export const timeStore = createStore('time', STORAGE_DEFAULT_VALUES.time)
+export const uiStore = createStore('ui')
+export const timeStore = createStore('time')

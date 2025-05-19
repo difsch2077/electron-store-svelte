@@ -78,12 +78,6 @@ app.whenReady().then(() => {
   // Notify all windows when store changes
   storeManager.onStoreChange((name, value) => {
     mainWindow.webContents.send('store-changed', { name, value })
-
-    // Print time_value2 changes
-    if (name === 'time') {
-      const timeValue = value as StorageSchemas['time']
-      console.log(`time_value2 changed to: ${timeValue.time_value2}`)
-    }
   })
 
   app.on('activate', function () {
