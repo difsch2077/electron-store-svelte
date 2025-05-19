@@ -1,15 +1,31 @@
-# electron-svelte-reactive
+# Electron Svelte Store Example
 
-## Project Setup
+Use electron-store with 2 way:
 
-### Install
+1. Traditional Svelte Stores
+2. Svelte5 Rune
+
+# Technology Stack
+
+- Frontend:
+  - Svelte 5
+  - TypeScript
+  - Vite (via electron-vite)
+- State Management:
+  - Traditional Svelte Stores
+  - Svelte5 Rune
+- Build Tools:
+  - electron-vite
+  - TypeScript
+
+## Installation
 
 ```bash
-$ npm install
+npm install
 ```
 
-### Development
+## Development
 
 ```bash
-$ npm run dev
+npm run dev
 ```
