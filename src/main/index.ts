@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { storeManager as storageManager } from './store-service'
+import { storageManager as storageManager } from './storage-service'
 import type { StorageName, StorageSchemas } from '../common/storage'
 
 function createWindow(): BrowserWindow {
@@ -54,11 +54,10 @@ app.whenReady().then(() => {
   //   })
   // }, 1000)
 
-  // Register store IPC handlers
-  ipcMain.handle('store-get', (_, name: StorageName) => storageManager.get(name))
+  ipcMain.handle('storage-get', (_, name: StorageName) => storageManager.get(name))
 
   ipcMain.handle(
-    'store-ipc-set',
+    'storage-ipc-set',
     (
       _,
       {
@@ -77,10 +76,10 @@ app.whenReady().then(() => {
   )
 
   const mainWindow = createWindow()
-  // Notify all windows when store changes
-  storageManager.onStoreChange((name, value, source) => {
+  // Notify all windows when storage changes
+  storageManager.onStorageChange((name, value, source) => {
     console.log('source', source)
-    mainWindow.webContents.send('store-changed', { name, value, source })
+    mainWindow.webContents.send('storage-changed', { name, value, source })
   })
 
   app.on('activate', function () {

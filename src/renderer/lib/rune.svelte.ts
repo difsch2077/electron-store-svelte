@@ -5,14 +5,12 @@ import type { StorageName, StorageSchemas } from '../../common/storage'
 export function createRune<T extends StorageName>(name: T) {
   let currentValue = $state(storageDefaultValues(name))
 
-  const unsubscribeStoreChange = window.electronStores.onStoreChange(
-    (changedName, newValue, source) => {
-      if (changedName === name && source !== 'rune') {
-        currentValue = newValue as StorageSchemas[T]
-        isAfterMainChange = true
-      }
+  const unSub = window.electronStores.onStorageChange((changedName, newValue, source) => {
+    if (changedName === name && source !== 'rune') {
+      currentValue = newValue as StorageSchemas[T]
+      isAfterMainChange = true
     }
-  )
+  })
 
   let isAfterMainChange = false
   let cleanRoot = () => {}
@@ -37,7 +35,7 @@ export function createRune<T extends StorageName>(name: T) {
 
   function cleanup() {
     isDestory = true
-    unsubscribeStoreChange()
+    unSub()
     cleanRoot()
   }
 

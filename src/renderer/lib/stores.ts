@@ -11,14 +11,12 @@ export function createStore<T extends StorageName>(name: T): Writable<StorageSch
     internalSet(value)
   })
 
-  const unsubscribeStoreChange = window.electronStores.onStoreChange(
-    (changedName, newValue, source) => {
-      if (changedName === name && source !== 'store') {
-        currentValue = newValue as StorageSchemas[T]
-        internalSet(newValue as StorageSchemas[T])
-      }
+  const unSub = window.electronStores.onStorageChange((changedName, newValue, source) => {
+    if (changedName === name && source !== 'store') {
+      currentValue = newValue as StorageSchemas[T]
+      internalSet(newValue as StorageSchemas[T])
     }
-  )
+  })
 
   const store = {
     subscribe,
@@ -41,7 +39,7 @@ export function createStore<T extends StorageName>(name: T): Writable<StorageSch
     const unsubscribe = originalSubscribe(run, invalidate)
     return () => {
       unsubscribe()
-      unsubscribeStoreChange()
+      unSub()
     }
   }
 

@@ -4,12 +4,16 @@ import type { StorageName, StorageSchemas } from '../common/storage'
 // Custom APIs for renderer
 const api = {}
 
-type StoreChangeCallback = (name: string, value: unknown, source: 'store' | 'rune' | 'main') => void
+type StorageChangeCallback = (
+  name: string,
+  value: unknown,
+  source: 'store' | 'rune' | 'main'
+) => void
 
-class StoreChangeManager {
-  private callbacks = new Map<string, Set<StoreChangeCallback>>()
+class StorageChangeManager {
+  private callbacks = new Map<string, Set<StorageChangeCallback>>()
 
-  add(uid: string, callback: StoreChangeCallback): StoreChangeCallback {
+  add(uid: string, callback: StorageChangeCallback): StorageChangeCallback {
     if (!this.callbacks.has(uid)) {
       this.callbacks.set(uid, new Set())
     }
@@ -17,7 +21,7 @@ class StoreChangeManager {
     return callback
   }
 
-  remove(uid: string, callback: StoreChangeCallback): void {
+  remove(uid: string, callback: StorageChangeCallback): void {
     const callbacks = this.callbacks.get(uid)
     if (callbacks) {
       callbacks.delete(callback)
@@ -41,30 +45,30 @@ class StoreChangeManager {
   }
 }
 
-const storeChangeManager = new StoreChangeManager()
+const storageChangeManager = new StorageChangeManager()
 
-ipcRenderer.on('store-changed', (_, { name, value, source }) => {
-  storeChangeManager.notify(name as StorageName, value, source)
+ipcRenderer.on('storage-changed', (_, { name, value, source }) => {
+  storageChangeManager.notify(name as StorageName, value, source)
 })
 
 const electronStores = {
   get<T extends StorageName>(name: T): Promise<StorageSchemas[T]> {
-    return ipcRenderer.invoke('store-get', name)
+    return ipcRenderer.invoke('storage-get', name)
   },
   set: <T extends StorageName>(
     name: T,
     value: StorageSchemas[T],
     source: 'store' | 'rune'
   ): void => {
-    ipcRenderer.invoke('store-ipc-set', { name, value, source })
+    ipcRenderer.invoke('storage-ipc-set', { name, value, source })
   },
-  onStoreChange: <T extends StorageName>(
+  onStorageChange: <T extends StorageName>(
     callback: (name: T, value: StorageSchemas[T], source: 'store' | 'rune' | 'main') => void
   ) => {
     const uid = Math.random().toString(36).substr(2, 8)
     // @ts-ignore ignore
-    const wrappedCallback = storeChangeManager.add(uid, callback)
-    return () => storeChangeManager.remove(uid, wrappedCallback)
+    const wrappedCallback = storageChangeManager.add(uid, callback)
+    return () => storageChangeManager.remove(uid, wrappedCallback)
   }
 }
 

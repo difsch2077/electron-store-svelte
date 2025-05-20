@@ -19,6 +19,6 @@ export type StorageSchemas = {
   [K in StorageName]: (typeof STORAGE_DEFAULT_VALUES)[K]
 }
 
-export function storageDefaultValues<T extends StorageName>(storeName: T): StorageSchemas[T] {
-  return JSON.parse(JSON.stringify(STORAGE_DEFAULT_VALUES[storeName]))
+export function storageDefaultValues<T extends StorageName>(storageName: T): StorageSchemas[T] {
+  return JSON.parse(JSON.stringify(STORAGE_DEFAULT_VALUES[storageName]))
 }

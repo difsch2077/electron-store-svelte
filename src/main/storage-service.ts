@@ -12,14 +12,14 @@ export class StorageManager extends EventEmitter {
   constructor() {
     super()
     this.storages = STORAGE_NAMES.reduce(<T extends StorageName>(acc, name: T) => {
-      const store = new Store<StorageSchemas[typeof name]>({
+      const storage = new Store<StorageSchemas[typeof name]>({
         name,
         defaults: storageDefaultValues(name)
       })
 
-      console.log('Store ' + name + ': ', store.path)
+      console.log('Storage ' + name + ': ', storage.path)
 
-      acc[name] = store
+      acc[name] = storage
       return acc
     }, {} as StorageInstances)
   }
@@ -35,7 +35,7 @@ export class StorageManager extends EventEmitter {
   ): void {
     this.storages[name].set(value)
     // 只有主进程发起的更新才通知渲染进程
-    this.emit('store-changed', name, value, source)
+    this.emit('storage-changed', name, value, source)
   }
 
   setPartial<T extends StorageName>(
@@ -47,14 +47,14 @@ export class StorageManager extends EventEmitter {
     this.set(name, newValue, source)
   }
 
-  onStoreChange(
+  onStorageChange(
     callback: (
       name: StorageName,
       value: StorageSchemas[StorageName],
       source: 'store' | 'rune' | 'main'
     ) => void
   ): void {
-    this.on('store-changed', callback)
+    this.on('storage-changed', callback)
   }
 
   // 提供给IPC调用的set方法
@@ -67,4 +67,4 @@ export class StorageManager extends EventEmitter {
   }
 }
 
-export const storeManager = new StorageManager()
+export const storageManager = new StorageManager()
