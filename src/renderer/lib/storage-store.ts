@@ -2,7 +2,7 @@ import { Writable, writable } from 'svelte/store'
 import { storageDefaultValues } from '../../common/storage'
 import type { StorageName, StorageSchemas } from '../../common/storage'
 
-export function createStore<T extends StorageName>(name: T): Writable<StorageSchemas[T]> {
+export function createStorageStore<T extends StorageName>(name: T): Writable<StorageSchemas[T]> {
   let currentValue = storageDefaultValues(name)
   const { subscribe, set: internalSet } = writable<StorageSchemas[T]>(currentValue)
 
@@ -46,5 +46,5 @@ export function createStore<T extends StorageName>(name: T): Writable<StorageSch
   return store as Writable<StorageSchemas[typeof name]>
 }
 
-export const uiStore = createStore('ui')
-export const timeStore = createStore('time')
+export const uiStore = createStorageStore('ui')
+export const timeStore = createStorageStore('time')

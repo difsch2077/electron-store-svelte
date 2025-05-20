@@ -2,7 +2,7 @@ import { onDestroy } from 'svelte'
 import { storageDefaultValues } from '../../common/storage'
 import type { StorageName, StorageSchemas } from '../../common/storage'
 
-export function createRune<T extends StorageName>(name: T) {
+export function createStorageRune<T extends StorageName>(name: T) {
   let currentValue = $state(storageDefaultValues(name))
 
   const unSub = window.electronStores.onStorageChange((changedName, newValue, source) => {
@@ -56,5 +56,5 @@ export function createRune<T extends StorageName>(name: T) {
   }
 }
 
-export const uiStore = createRune('ui')
-export const timeStore = createRune('time')
+export const uiStore = createStorageRune('ui')
+export const timeStore = createStorageRune('time')

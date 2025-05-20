@@ -60,7 +60,7 @@ const electronStores = {
     value: StorageSchemas[T],
     source: 'store' | 'rune'
   ): void => {
-    ipcRenderer.invoke('storage-ipc-set', { name, value, source })
+    ipcRenderer.invoke('storage-renderer-set', { name, value, source })
   },
   onStorageChange: <T extends StorageName>(
     callback: (name: T, value: StorageSchemas[T], source: 'store' | 'rune' | 'main') => void

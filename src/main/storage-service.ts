@@ -57,8 +57,7 @@ export class StorageManager extends EventEmitter {
     this.on('storage-changed', callback)
   }
 
-  // 提供给IPC调用的set方法
-  ipcSet<T extends StorageName>(
+  rendererSet<T extends StorageName>(
     name: T,
     value: StorageSchemas[T],
     source: 'store' | 'rune' | 'main'

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { uiStore, timeStore } from './lib/stores'
+  import { uiStore, timeStore } from './lib/storage-store'
 
   function toggleTheme(): void {
     uiStore.update((config) => ({

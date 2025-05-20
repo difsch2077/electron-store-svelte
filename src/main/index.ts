@@ -57,7 +57,7 @@ app.whenReady().then(() => {
   ipcMain.handle('storage-get', (_, name: StorageName) => storageManager.get(name))
 
   ipcMain.handle(
-    'storage-ipc-set',
+    'storage-renderer-set',
     (
       _,
       {
@@ -70,7 +70,7 @@ app.whenReady().then(() => {
         source: 'store' | 'rune'
       }
     ) => {
-      storageManager.ipcSet(name, value, source)
+      storageManager.rendererSet(name, value, source)
       return value
     }
   )

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { uiStore, timeStore } from './lib/rune.svelte'
+  import { uiStore, timeStore } from './lib/storage-rune.svelte'
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   function toggleTheme() {
     uiStore.current.theme = uiStore.current.theme === 'dark' ? 'light' : 'dark'
