@@ -78,8 +78,9 @@ app.whenReady().then(() => {
   const mainWindow = createWindow()
   // Notify all windows when storage changes
   storageManager.onStorageChange((name, value, source) => {
-    console.log('source', source)
+    // if (source === 'main') {Uncomment when you don't use store and rune at the same time
     mainWindow.webContents.send('storage-changed', { name, value, source })
+    // }
   })
 
   app.on('activate', function () {

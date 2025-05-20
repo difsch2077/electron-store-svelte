@@ -34,7 +34,6 @@ export class StorageManager extends EventEmitter {
     source: 'store' | 'rune' | 'main' = 'main'
   ): void {
     this.storages[name].set(value)
-    // 只有主进程发起的更新才通知渲染进程
     this.emit('storage-changed', name, value, source)
   }
 
